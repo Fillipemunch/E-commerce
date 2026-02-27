@@ -1,0 +1,8 @@
+{
+  "name": "NordicCom - Danish E-commerce Platform",
+  "description": "A bilingual (Danish/English) SaaS e-commerce dashboard for SMBs in Denmark, featuring AI-powered product content generation, customer support, and sales analysis.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
