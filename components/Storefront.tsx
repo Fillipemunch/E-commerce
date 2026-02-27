@@ -1,7 +1,8 @@
 
 import React, { useState, useRef } from 'react';
+import * as Icons from 'lucide-react';
 import { ShoppingBag, Search, MapPin, CheckCircle, Smartphone, X, MessageCircle, CalendarClock, Eye, Mic, Star, Truck, ShieldCheck, RefreshCw, Zap, ArrowLeft, CreditCard, ExternalLink, Copy, Rocket, Edit3, Image as ImageIcon, Save } from 'lucide-react';
-import { Language, StoreProduct, ReviewSummary } from '../types';
+import { Language, StoreProduct, ReviewSummary, StoreCustomization } from '../types';
 import { UI_TEXT, MOCK_PAKKESHOPS, MOCK_SHOP_LOOK, MOCK_DELIVERY_SLOTS } from '../constants';
 import { searchProductsWithAI, getRecommendations, summarizeReviews } from '../services/geminiService';
 
@@ -11,9 +12,19 @@ interface StorefrontProps {
   storeUrl?: string;
   isStoreLaunched?: boolean;
   onLaunch?: () => void;
+  customization: StoreCustomization;
+  onUpdateCustomization: (updates: Partial<StoreCustomization>) => void;
 }
 
-const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isStoreLaunched, onLaunch }) => {
+const Storefront: React.FC<StorefrontProps> = ({ 
+  lang, 
+  products, 
+  storeUrl, 
+  isStoreLaunched, 
+  onLaunch,
+  customization,
+  onUpdateCustomization
+}) => {
   const t = UI_TEXT[lang];
 
   // State
@@ -22,24 +33,6 @@ const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isSto
   
   // Customization State
   const [isEditMode, setIsEditMode] = useState(false);
-  const [heroImage, setHeroImage] = useState('https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=2000');
-  const [shopLookImage, setShopLookImage] = useState(MOCK_SHOP_LOOK.imageUrl);
-  const [logoText, setLogoText] = useState('NORDIC');
-  const [logoImage, setLogoImage] = useState<string | null>(null);
-  const [heroTitle, setHeroTitle] = useState(lang === 'da' ? 'Slip din stil løs.' : 'Unleash Your Style.');
-  const [heroAccentTitle, setHeroAccentTitle] = useState(lang === 'da' ? 'Køb Fremtiden.' : 'Shop the Future.');
-  const [heroSubtitleText, setHeroSubtitleText] = useState(t.hero_subtitle);
-  const [ctaBuyText, setCtaBuyText] = useState(t.cta_buy);
-  const [ctaExploreText, setCtaExploreText] = useState(t.cta_explore);
-  const [sectionShopLookTitle, setSectionShopLookTitle] = useState(t.section_shop_look);
-  const [sectionNewTitle, setSectionNewTitle] = useState(t.section_new);
-  const [footerDesc, setFooterDesc] = useState('Redefining the shopping experience with AI intelligence and Scandinavian aesthetics.');
-  const [uspData, setUspData] = useState([
-    { icon: Truck, title: t.usp_delivery, color: "text-blue-600", bg: "bg-blue-50" },
-    { icon: ShieldCheck, title: t.usp_payment, color: "text-emerald-600", bg: "bg-emerald-50" },
-    { icon: RefreshCw, title: t.usp_return, color: "text-purple-600", bg: "bg-purple-50" },
-    { icon: Star, title: t.usp_design, color: "text-yellow-500", bg: "bg-yellow-50" }
-  ]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [editingTarget, setEditingTarget] = useState<'hero' | 'shopLook' | 'logo' | null>(null);
@@ -184,9 +177,9 @@ const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isSto
     if (file && editingTarget) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        if (editingTarget === 'hero') setHeroImage(reader.result as string);
-        if (editingTarget === 'shopLook') setShopLookImage(reader.result as string);
-        if (editingTarget === 'logo') setLogoImage(reader.result as string);
+        if (editingTarget === 'hero') onUpdateCustomization({ heroImage: reader.result as string });
+        if (editingTarget === 'shopLook') onUpdateCustomization({ shopLookImage: reader.result as string });
+        if (editingTarget === 'logo') onUpdateCustomization({ logoImage: reader.result as string });
         setEditingTarget(null);
       };
       reader.readAsDataURL(file);
@@ -532,8 +525,8 @@ const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isSto
               <div className="flex items-center gap-2">
                 <input 
                   type="text" 
-                  value={logoText} 
-                  onChange={(e) => setLogoText(e.target.value)}
+                  value={customization.logoText} 
+                  onChange={(e) => onUpdateCustomization({ logoText: e.target.value })}
                   className="bg-slate-100 border-none p-1 rounded font-black tracking-tighter w-32 focus:ring-2 focus:ring-electricBlue outline-none"
                   onClick={(e) => e.stopPropagation()}
                 />
@@ -544,9 +537,9 @@ const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isSto
                 >
                   <ImageIcon className="w-4 h-4 text-slate-600" />
                 </button>
-                {logoImage && (
+                {customization.logoImage && (
                   <button 
-                    onClick={(e) => { e.stopPropagation(); setLogoImage(null); }}
+                    onClick={(e) => { e.stopPropagation(); onUpdateCustomization({ logoImage: null }); }}
                     className="p-1 bg-red-50 rounded hover:bg-red-100 transition"
                     title="Remove Logo Image"
                   >
@@ -555,10 +548,10 @@ const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isSto
                 )}
               </div>
             ) : (
-              logoImage ? (
-                <img src={logoImage} alt={logoText} className="h-8 w-auto object-contain" />
+              customization.logoImage ? (
+                <img src={customization.logoImage} alt={customization.logoText} className="h-8 w-auto object-contain" />
               ) : (
-                logoText
+                customization.logoText
               )
             )}
             <span className="text-electricBlue">.</span>
@@ -614,7 +607,7 @@ const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isSto
               {/* Background with Gradient Overlay */}
               <div className="absolute inset-0 z-0">
                 <img 
-                  src={heroImage} 
+                  src={customization.heroImage} 
                   alt="Fashion" 
                   className="w-full h-full object-cover opacity-60 mix-blend-overlay"
                 />
@@ -641,37 +634,37 @@ const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isSto
                         {isEditMode ? (
                           <input 
                             type="text" 
-                            value={heroTitle} 
-                            onChange={(e) => setHeroTitle(e.target.value)}
+                            value={customization.heroTitle} 
+                            onChange={(e) => onUpdateCustomization({ heroTitle: e.target.value })}
                             className="bg-white/10 border-none p-1 rounded w-full focus:ring-2 focus:ring-electricBlue outline-none text-white"
                           />
                         ) : (
-                          heroTitle
+                          customization.heroTitle
                         )}
                         <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-electricBlue to-neonYellow">
                             {isEditMode ? (
                               <input 
                                 type="text" 
-                                value={heroAccentTitle} 
-                                onChange={(e) => setHeroAccentTitle(e.target.value)}
+                                value={customization.heroAccentTitle} 
+                                onChange={(e) => onUpdateCustomization({ heroAccentTitle: e.target.value })}
                                 className="bg-white/10 border-none p-1 rounded w-full focus:ring-2 focus:ring-electricBlue outline-none text-electricBlue"
                               />
                             ) : (
-                              heroAccentTitle
+                              customization.heroAccentTitle
                             )}
                         </span>
                     </h1>
                     <div className="mb-10">
                       {isEditMode ? (
                         <textarea 
-                          value={heroSubtitleText} 
-                          onChange={(e) => setHeroSubtitleText(e.target.value)}
+                          value={customization.heroSubtitle} 
+                          onChange={(e) => onUpdateCustomization({ heroSubtitle: e.target.value })}
                           className="w-full bg-white/10 border-none p-3 rounded text-lg md:text-xl font-medium text-slate-300 focus:ring-2 focus:ring-electricBlue outline-none h-24"
                         />
                       ) : (
                         <p className="text-lg md:text-xl font-medium text-slate-300 max-w-lg leading-relaxed">
-                          {heroSubtitleText}
+                          {customization.heroSubtitle}
                         </p>
                       )}
                     </div>
@@ -680,24 +673,24 @@ const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isSto
                             {isEditMode ? (
                               <input 
                                 type="text" 
-                                value={ctaBuyText} 
-                                onChange={(e) => setCtaBuyText(e.target.value)}
+                                value={customization.ctaBuyText} 
+                                onChange={(e) => onUpdateCustomization({ ctaBuyText: e.target.value })}
                                 className="bg-transparent border-none p-0 w-24 focus:ring-0 outline-none text-white text-center"
                               />
                             ) : (
-                              ctaBuyText
+                              customization.ctaBuyText
                             )} <Zap className="w-5 h-5 fill-current" />
                         </button>
                         <button className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-4 rounded-full font-bold hover:bg-white/20 transition hover-scale">
                             {isEditMode ? (
                               <input 
                                 type="text" 
-                                value={ctaExploreText} 
-                                onChange={(e) => setCtaExploreText(e.target.value)}
+                                value={customization.ctaExploreText} 
+                                onChange={(e) => onUpdateCustomization({ ctaExploreText: e.target.value })}
                                 className="bg-transparent border-none p-0 w-28 focus:ring-0 outline-none text-white text-center"
                               />
                             ) : (
-                              ctaExploreText
+                              customization.ctaExploreText
                             )}
                         </button>
                     </div>
@@ -715,12 +708,12 @@ const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isSto
                         {isEditMode ? (
                           <input 
                             type="text" 
-                            value={sectionShopLookTitle} 
-                            onChange={(e) => setSectionShopLookTitle(e.target.value)}
+                            value={customization.sectionShopLookTitle} 
+                            onChange={(e) => onUpdateCustomization({ sectionShopLookTitle: e.target.value })}
                             className="bg-slate-100 border-none p-1 rounded focus:ring-2 focus:ring-electricBlue outline-none"
                           />
                         ) : (
-                          sectionShopLookTitle
+                          customization.sectionShopLookTitle
                         )}
                     </h2>
                     <div className="h-1 flex-1 bg-slate-100 ml-6 rounded-full overflow-hidden">
@@ -729,7 +722,7 @@ const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isSto
                 </div>
                 
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-200 aspect-video md:aspect-[2.35/1] group cursor-crosshair">
-                    <img src={shopLookImage} alt={MOCK_SHOP_LOOK.title} className="w-full h-full object-cover transition duration-700 group-hover:scale-105" />
+                    <img src={customization.shopLookImage} alt={MOCK_SHOP_LOOK.title} className="w-full h-full object-cover transition duration-700 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition duration-500"></div>
                     
                     {isEditMode && (
@@ -789,12 +782,12 @@ const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isSto
                   isEditMode ? (
                     <input 
                       type="text" 
-                      value={sectionNewTitle} 
-                      onChange={(e) => setSectionNewTitle(e.target.value)}
+                      value={customization.sectionNewTitle} 
+                      onChange={(e) => onUpdateCustomization({ sectionNewTitle: e.target.value })}
                       className="bg-slate-100 border-none p-1 rounded focus:ring-2 focus:ring-electricBlue outline-none"
                     />
                   ) : (
-                    sectionNewTitle
+                    customization.sectionNewTitle
                   )
                 )}
               </h2>
@@ -871,27 +864,30 @@ const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isSto
           {view === 'home' && (
             <section className="py-20 border-t border-slate-100 bg-white">
               <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
-                {uspData.map((usp, i) => (
-                    <div key={i} className="flex flex-col items-center text-center gap-4 group">
-                        <div className={`w-20 h-20 rounded-3xl ${usp.bg} flex items-center justify-center shadow-sm group-hover:scale-110 transition duration-300 group-hover:rotate-3`}>
-                            <usp.icon className={`w-8 h-8 ${usp.color}`} />
+                {customization.uspData.map((usp, i) => {
+                    const Icon = (Icons as any)[usp.iconName] || Icons.Zap;
+                    return (
+                        <div key={i} className="flex flex-col items-center text-center gap-4 group">
+                            <div className="w-20 h-20 rounded-3xl bg-slate-50 flex items-center justify-center shadow-sm group-hover:scale-110 transition duration-300 group-hover:rotate-3">
+                                <Icon className="w-8 h-8 text-electricBlue" />
+                            </div>
+                            {isEditMode ? (
+                              <input 
+                                type="text" 
+                                value={usp.title} 
+                                onChange={(e) => {
+                                  const newData = [...customization.uspData];
+                                  newData[i].title = e.target.value;
+                                  onUpdateCustomization({ uspData: newData });
+                                }}
+                                className="bg-slate-100 border-none p-1 rounded font-bold text-center w-full focus:ring-2 focus:ring-electricBlue outline-none"
+                              />
+                            ) : (
+                              <h3 className="font-bold text-lg text-slate-900">{usp.title}</h3>
+                            )}
                         </div>
-                        {isEditMode ? (
-                          <input 
-                            type="text" 
-                            value={usp.title} 
-                            onChange={(e) => {
-                              const newData = [...uspData];
-                              newData[i].title = e.target.value;
-                              setUspData(newData);
-                            }}
-                            className="bg-slate-100 border-none p-1 rounded font-bold text-center w-full focus:ring-2 focus:ring-electricBlue outline-none"
-                          />
-                        ) : (
-                          <h3 className="font-bold text-lg text-slate-900">{usp.title}</h3>
-                        )}
-                    </div>
-                ))}
+                    );
+                })}
               </div>
             </section>
           )}
@@ -904,23 +900,23 @@ const Storefront: React.FC<StorefrontProps> = ({ lang, products, storeUrl, isSto
                   {isEditMode ? (
                     <input 
                       type="text" 
-                      value={logoText} 
-                      onChange={(e) => setLogoText(e.target.value)}
+                      value={customization.logoText} 
+                      onChange={(e) => onUpdateCustomization({ logoText: e.target.value })}
                       className="bg-white/10 border-none p-1 rounded font-black tracking-tighter w-32 focus:ring-2 focus:ring-electricBlue outline-none text-white"
                     />
                   ) : (
-                    logoText
+                    customization.logoText
                   )}
                   <span className="text-electricBlue">.</span>
                 </div>
                 {isEditMode ? (
                   <textarea 
-                    value={footerDesc} 
-                    onChange={(e) => setFooterDesc(e.target.value)}
+                    value={customization.footerDesc} 
+                    onChange={(e) => onUpdateCustomization({ footerDesc: e.target.value })}
                     className="w-full bg-white/10 border-none p-3 rounded text-slate-400 focus:ring-2 focus:ring-electricBlue outline-none h-24"
                   />
                 ) : (
-                  <p className="text-slate-400 max-w-sm text-lg leading-relaxed">{footerDesc}</p>
+                  <p className="text-slate-400 max-w-sm text-lg leading-relaxed">{customization.footerDesc}</p>
                 )}
               </div>
               <div>

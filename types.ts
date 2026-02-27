@@ -164,3 +164,23 @@ export interface VoiceCommandIntent {
   parameters: Record<string, any>; // e.g. { product: 'chair', quantity: 10 }
   confirmation_msg: string;
 }
+
+export interface StoreCustomization {
+  logoText: string;
+  logoImage: string | null;
+  heroImage: string;
+  heroTitle: string;
+  heroAccentTitle: string;
+  heroSubtitle: string;
+  ctaBuyText: string;
+  ctaExploreText: string;
+  shopLookImage: string;
+  sectionShopLookTitle: string;
+  sectionNewTitle: string;
+  footerDesc: string;
+  uspData: Array<{ title: string; iconName: string }>;
+  landingHero: string;
+  landingSub: string;
+  landingCta: string;
+  landingHeroImage: string | null;
+}

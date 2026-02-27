@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, CheckCircle, Zap, Shield, TrendingUp, Globe, UserPlus, UploadCloud, Gavel, Rocket } from 'lucide-react';
-import { Language } from '../types';
+import { ArrowRight, CheckCircle, Zap, Shield, TrendingUp, Globe, UserPlus, UploadCloud, Gavel, Rocket, Image as ImageIcon } from 'lucide-react';
+import { Language, StoreCustomization } from '../types';
 import { UI_TEXT } from '../constants';
 
 interface LandingPageProps {
@@ -11,11 +11,23 @@ interface LandingPageProps {
   isEditMode?: boolean;
   customLabels?: Record<string, string>;
   onLabelChange?: (key: string, value: string) => void;
+  customization?: StoreCustomization;
+  onUpdateCustomization?: (updates: Partial<StoreCustomization>) => void;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ lang, onLoginClick, toggleLang, isEditMode, customLabels, onLabelChange }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ 
+  lang, 
+  onLoginClick, 
+  toggleLang, 
+  isEditMode, 
+  customLabels, 
+  onLabelChange,
+  customization,
+  onUpdateCustomization
+}) => {
   const t = { ...UI_TEXT[lang], ...customLabels };
   const [scrolled, setScrolled] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,8 +44,26 @@ const LandingPage: React.FC<LandingPageProps> = ({ lang, onLoginClick, toggleLan
     }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onUpdateCustomization?.({ landingHeroImage: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-900 text-white font-sans overflow-hidden selection:bg-electricBlue selection:text-white">
+    <div className="min-h-screen bg-slate-900 text-white font-sans overflow-hidden selection:bg-electricBlue selection:text-white relative">
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        className="hidden" 
+        accept="image/*" 
+        onChange={handleImageUpload} 
+      />
       {/* Sticky Navigation */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-slate-900/90 backdrop-blur-md shadow-2xl py-4' : 'bg-transparent py-6'}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
@@ -77,8 +107,30 @@ const LandingPage: React.FC<LandingPageProps> = ({ lang, onLoginClick, toggleLan
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-24 px-6 text-center max-w-5xl mx-auto mt-10">
-         {/* Background Glow */}
-         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-electricBlue/20 rounded-full blur-[100px] -z-10 animate-pulse"></div>
+         {/* Background Glow or Custom Image */}
+         {customization?.landingHeroImage ? (
+            <div className="absolute inset-0 -z-10 opacity-30">
+                <img 
+                  src={customization.landingHeroImage} 
+                  alt="Hero Background" 
+                  className="w-full h-full object-cover blur-sm"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-slate-900/60"></div>
+            </div>
+         ) : (
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-electricBlue/20 rounded-full blur-[100px] -z-10 animate-pulse"></div>
+         )}
+
+         {isEditMode && (
+            <button 
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute top-0 right-0 bg-white/10 hover:bg-white/20 p-2 rounded-full transition-all flex items-center gap-2 text-xs font-bold"
+            >
+              <ImageIcon className="w-4 h-4" />
+              Change Hero Image
+            </button>
+         )}
          
          <div className="inline-block bg-electricBlue/10 border border-electricBlue/50 px-4 py-1.5 rounded-full text-electricBlue font-bold text-xs uppercase tracking-widest mb-8 backdrop-blur animate-fade-in-up">
             V 3.0 • Powered by Gemini AI
@@ -242,19 +294,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ lang, onLoginClick, toggleLan
                 ))}
             </div>
          </div>
-      </section>
-
-      {/* Social Proof */}
-      <section className="py-24 bg-gradient-to-b from-slate-950 to-slate-900 border-t border-slate-800">
-          <div className="max-w-7xl mx-auto px-6 text-center">
-              <p className="text-electricBlue font-bold uppercase tracking-widest mb-10 text-xs">Trusted by Danish SMBs</p>
-              <div className="flex flex-col md:flex-row justify-center gap-10 md:gap-24 items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
-                  <h3 className="text-3xl font-black text-white tracking-tighter">Nordic Living</h3>
-                  <h3 className="text-3xl font-black text-white tracking-tighter">Copenhagen Design</h3>
-                  <h3 className="text-3xl font-black text-white tracking-tighter">Aarhus Style</h3>
-                  <h3 className="text-3xl font-black text-white tracking-tighter">Odense Home</h3>
-              </div>
-          </div>
       </section>
 
       {/* Footer */}

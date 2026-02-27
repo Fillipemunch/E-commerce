@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { LayoutDashboard, ShoppingBag, MessageSquare, BarChart3, Globe, Store, Briefcase, LogOut, User } from 'lucide-react';
-import { Tab, Language, StoreProduct } from './types';
-import { UI_TEXT, MOCK_STATS, MOCK_PRODUCTS } from './constants';
+import { Tab, Language, StoreProduct, StoreCustomization } from './types';
+import { UI_TEXT, MOCK_STATS, MOCK_PRODUCTS, MOCK_SHOP_LOOK } from './constants';
 import ProductGenerator from './components/ProductGenerator';
 import PromotionAnalyst from './components/PromotionAnalyst';
 import Storefront from './components/Storefront';
@@ -27,7 +27,53 @@ const App: React.FC = () => {
   // Lifted Product State for CRUD
   const [products, setProducts] = useState<StoreProduct[]>(MOCK_PRODUCTS);
   const [isGlobalEditMode, setIsGlobalEditMode] = useState(false);
-  const [customLabels, setCustomLabels] = useState<Record<string, string>>({});
+  const [customLabels, setCustomLabels] = useState<Record<string, string>>(() => {
+    const saved = localStorage.getItem('nordic_custom_labels');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+    }
+    return {};
+  });
+  
+  // Customization State
+  const [customization, setCustomization] = useState<StoreCustomization>(() => {
+    const saved = localStorage.getItem('nordic_customization');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+    }
+    return {
+      logoText: 'NORDIC',
+      logoImage: null,
+      heroImage: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=2000',
+      heroTitle: 'Unleash Your Style.',
+      heroAccentTitle: 'Shop the Future.',
+      heroSubtitle: 'High energy, bold design. Experience the new wave of Nordic style.',
+      ctaBuyText: 'Explore Now',
+      ctaExploreText: 'View Collection',
+      shopLookImage: MOCK_SHOP_LOOK.imageUrl,
+      sectionShopLookTitle: 'Shop the Look',
+      sectionNewTitle: 'New Arrivals',
+      footerDesc: 'NordicCom is the leading AI-powered e-commerce platform for Danish businesses.',
+      uspData: [
+        { title: 'Lightning Delivery', iconName: 'Zap' },
+        { title: 'Secure MobilePay', iconName: 'Shield' },
+        { title: 'Easy Returns', iconName: 'TrendingUp' },
+        { title: 'Danish Quality', iconName: 'Globe' }
+      ],
+      landingHero: 'Unleash Your Store with Gemini AI.',
+      landingSub: 'The all-in-one e-commerce platform for Danish SMBs.',
+      landingCta: 'Start Your Free Trial Now',
+      landingHeroImage: null
+    };
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem('nordic_customization', JSON.stringify(customization));
+  }, [customization]);
+
+  React.useEffect(() => {
+    localStorage.setItem('nordic_custom_labels', JSON.stringify(customLabels));
+  }, [customLabels]);
 
   const t = { ...UI_TEXT[lang], ...customLabels };
 
@@ -82,6 +128,8 @@ const App: React.FC = () => {
                        if (key === '_toggle_edit') setIsGlobalEditMode(!isGlobalEditMode);
                        else setCustomLabels(prev => ({ ...prev, [key]: value }));
                     }}
+                    customization={customization}
+                    onUpdateCustomization={(updates) => setCustomization(prev => ({ ...prev, ...updates }))}
                  />
               </div>
 
@@ -142,6 +190,8 @@ const App: React.FC = () => {
               storeUrl={storeUrl}
               isStoreLaunched={isStoreLaunched}
               onLaunch={handleLaunchStore}
+              customization={customization}
+              onUpdateCustomization={(updates) => setCustomization(prev => ({ ...prev, ...updates }))}
             />
           </div>
         );
@@ -163,6 +213,8 @@ const App: React.FC = () => {
                 isEditMode={true}
                 customLabels={customLabels}
                 onLabelChange={(key, value) => setCustomLabels(prev => ({ ...prev, [key]: value }))}
+                customization={customization}
+                onUpdateCustomization={(updates) => setCustomization(prev => ({ ...prev, ...updates }))}
               />
             </div>
           </div>
