@@ -1,14 +1,14 @@
 
 import React, { useState } from 'react';
 import { LayoutDashboard, ShoppingBag, MessageSquare, BarChart3, Globe, Store, Briefcase, LogOut, User } from 'lucide-react';
-import { Tab, Language, StoreProduct, StoreCustomization } from './types';
-import { UI_TEXT, MOCK_STATS, MOCK_PRODUCTS, MOCK_SHOP_LOOK } from './constants';
-import ProductGenerator from './components/ProductGenerator';
-import PromotionAnalyst from './components/PromotionAnalyst';
-import Storefront from './components/Storefront';
-import BusinessTools from './components/BusinessTools';
-import Auth from './components/Auth';
-import LandingPage from './components/LandingPage';
+import { Tab, Language, StoreProduct, StoreCustomization } from '@/types';
+import { UI_TEXT, MOCK_STATS, MOCK_PRODUCTS, MOCK_SHOP_LOOK } from '@/constants';
+import ProductGenerator from '@/components/ProductGenerator';
+import PromotionAnalyst from '@/components/PromotionAnalyst';
+import Storefront from '@/components/Storefront';
+import BusinessTools from '@/components/BusinessTools';
+import Auth from '@/components/Auth';
+import LandingPage from '@/components/LandingPage';
 
 type ViewState = 'LANDING' | 'AUTH' | 'DASHBOARD';
 
