@@ -17,30 +17,53 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
-  // Netlify API proxy
+  // Netlify API proxy - List Sites
   app.get("/api/netlify/sites", async (req, res) => {
     const token = process.env.NETLIFY_AUTH_TOKEN;
-    if (!token) {
-      return res.status(401).json({ error: "NETLIFY_AUTH_TOKEN is not set" });
-    }
+    if (!token) return res.status(401).json({ error: "NETLIFY_AUTH_TOKEN is not set" });
 
     try {
       const response = await fetch("https://api.netlify.com/api/v1/sites", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        return res.status(response.status).json(errorData);
-      }
-
-      const sites = await response.json();
-      res.json(sites);
+      const data = await response.json();
+      res.json(data);
     } catch (error) {
-      console.error("Netlify API error:", error);
-      res.status(500).json({ error: "Failed to fetch Netlify sites" });
+      res.status(500).json({ error: "Failed to fetch sites" });
+    }
+  });
+
+  // Netlify API proxy - Get Site Info
+  app.get("/api/netlify/site/:siteId", async (req, res) => {
+    const token = process.env.NETLIFY_AUTH_TOKEN;
+    const { siteId } = req.params;
+    if (!token) return res.status(401).json({ error: "NETLIFY_AUTH_TOKEN is not set" });
+
+    try {
+      const response = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch site info" });
+    }
+  });
+
+  // Netlify API proxy - Get Deploys
+  app.get("/api/netlify/site/:siteId/deploys", async (req, res) => {
+    const token = process.env.NETLIFY_AUTH_TOKEN;
+    const { siteId } = req.params;
+    if (!token) return res.status(401).json({ error: "NETLIFY_AUTH_TOKEN is not set" });
+
+    try {
+      const response = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/deploys`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch deploys" });
     }
   });
 
