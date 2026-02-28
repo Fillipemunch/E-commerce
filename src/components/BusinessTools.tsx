@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldAlert, FileText, TrendingUp, AlertTriangle, CheckCircle, Download, FileCheck, MessageCircle, Languages, Tag, RefreshCw, Copy, Check, Eye, Lock, LayoutTemplate, Accessibility, Mic, CreditCard, DollarSign } from 'lucide-react';
+import { ShieldAlert, FileText, TrendingUp, AlertTriangle, CheckCircle, Download, FileCheck, MessageCircle, Languages, Tag, RefreshCw, Copy, Check, Eye, Lock, LayoutTemplate, Accessibility, Mic, CreditCard, DollarSign, Globe } from 'lucide-react';
 import { Language, ComplianceResult, CompetitorInsight, SocialResponse, SmartCouponResult, FraudAnalysis, ForecastRecommendation, AccessibilityAudit, VoiceCommandIntent } from '@/types';
 import { UI_TEXT, MOCK_INVENTORY, MOCK_TRANSACTION } from '@/constants';
 import { checkCompliance, analyzeCompetitorPricing, generateSocialResponses, translateBusinessText, generateSmartCoupon, analyzeFraudRisk, predictInventory, generateLandingPage, auditAccessibility, parseVoiceCommand } from '@/services/geminiService';
@@ -10,7 +10,7 @@ interface BusinessToolsProps {
 
 const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
   const t = UI_TEXT[lang];
-  const [activeTool, setActiveTool] = useState<'compliance' | 'pricing' | 'invoice' | 'social' | 'translator' | 'coupons' | 'fraud' | 'forecast' | 'landing' | 'access' | 'voice' | 'chatbot' | 'search'>('compliance');
+  const [activeTool, setActiveTool] = useState<'compliance' | 'pricing' | 'invoice' | 'social' | 'translator' | 'coupons' | 'fraud' | 'forecast' | 'landing' | 'access' | 'voice' | 'chatbot' | 'search' | 'netlify'>('compliance');
 
   // Compliance State
   const [complianceText, setComplianceText] = useState('');
@@ -63,6 +63,11 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState<Array<{ role: 'user' | 'model', text: string }>>([]);
   const [loadingChat, setLoadingChat] = useState(false);
+
+  // Netlify State
+  const [netlifySites, setNetlifySites] = useState<any[]>([]);
+  const [loadingNetlify, setLoadingNetlify] = useState(false);
+  const [netlifyError, setNetlifyError] = useState<string | null>(null);
 
   // Handlers
   const handleCheckCompliance = async () => {
@@ -174,6 +179,24 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
     
     setChatHistory(prev => [...prev, { role: 'model', text: response }]);
     setLoadingChat(false);
+  };
+
+  const handleFetchNetlifySites = async () => {
+    setLoadingNetlify(true);
+    setNetlifyError(null);
+    try {
+      const response = await fetch('/api/netlify/sites');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to fetch sites');
+      }
+      const data = await response.json();
+      setNetlifySites(data);
+    } catch (err: any) {
+      setNetlifyError(err.message);
+    } finally {
+      setLoadingNetlify(false);
+    }
   };
 
 
@@ -838,6 +861,69 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
     </div>
   );
 
+  const renderNetlify = () => (
+    <div className="space-y-6 animate-slide-in-right">
+      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-lg">
+        <h3 className="text-xl font-black mb-6 flex items-center gap-3 text-slate-900">
+          <div className="bg-blue-50 p-2 rounded-xl text-blue-600"><Globe className="w-6 h-6" /></div>
+          {t.tool_netlify}
+        </h3>
+        <p className="text-sm text-slate-500 mb-6 font-medium">
+          Manage your store deployments on Netlify directly from NORVOSS.
+        </p>
+        <button 
+          onClick={handleFetchNetlifySites}
+          disabled={loadingNetlify}
+          className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 flex items-center gap-2"
+        >
+          {loadingNetlify ? t.loading : t.netlify_btn_fetch}
+        </button>
+
+        {netlifyError && (
+          <div className="mt-6 p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm font-bold flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5" />
+            {netlifyError}
+          </div>
+        )}
+
+        {netlifySites.length > 0 && (
+          <div className="mt-8 overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="text-slate-400 uppercase text-[10px] font-black tracking-wider border-b border-slate-100">
+                <tr>
+                  <th className="px-4 py-3">{t.netlify_site_name}</th>
+                  <th className="px-4 py-3">{t.netlify_site_url}</th>
+                  <th className="px-4 py-3">{t.netlify_status}</th>
+                  <th className="px-4 py-3">{t.netlify_site_created}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {netlifySites.map((site: any) => (
+                  <tr key={site.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="px-4 py-4 font-bold text-slate-800">{site.name}</td>
+                    <td className="px-4 py-4">
+                      <a href={site.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center gap-1">
+                        {site.url.replace('https://', '')}
+                      </a>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className="bg-green-100 text-green-700 text-[10px] font-black px-2 py-0.5 rounded uppercase">
+                        {site.state}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-slate-500 font-mono text-xs">
+                      {new Date(site.created_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col lg:flex-row gap-8">
        {/* Tools Navigation */}
@@ -856,6 +942,7 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
                { id: 'voice', label: t.tool_voice, icon: Mic, color: 'text-rose-500' },
                { id: 'chatbot', label: t.tool_chatbot, icon: MessageCircle, color: 'text-indigo-500' },
                { id: 'search', label: t.tool_search, icon: Eye, color: 'text-emerald-500' },
+               { id: 'netlify', label: t.tool_netlify, icon: Globe, color: 'text-blue-600' },
            ].map((tool) => (
                <button
                   key={tool.id}
@@ -883,6 +970,7 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
            {activeTool === 'voice' && renderVoice()}
            {activeTool === 'chatbot' && renderChatbot()}
            {activeTool === 'search' && renderSearch()}
+           {activeTool === 'netlify' && renderNetlify()}
        </div>
     </div>
   );
