@@ -455,7 +455,7 @@ const Storefront: React.FC<StorefrontProps> = ({
           <div className="absolute top-0 left-0 w-1.5 bg-emeraldAction h-full"></div>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Message Preview</p>
           <p className="text-sm font-medium text-slate-800 leading-relaxed">
-             "Tak for dit køb hos NordicCom, {deliveryDetails.name}! Din ordre #2392 er modtaget. Du får besked når den lander i {MOCK_PAKKESHOPS.find(s => s.id === selectedPakkeshop)?.name}."
+             "Tak for dit køb hos NORVOSS, {deliveryDetails.name}! Din ordre #2392 er modtaget. Du får besked når den lander i {MOCK_PAKKESHOPS.find(s => s.id === selectedPakkeshop)?.name}."
           </p>
        </div>
 
@@ -937,7 +937,7 @@ const Storefront: React.FC<StorefrontProps> = ({
               </div>
             </div>
             <div className="max-w-7xl mx-auto px-6 border-t border-slate-800 pt-8 flex justify-between items-center text-xs text-slate-500 font-medium">
-              <p>&copy; 2025 NordicCom Demo Store.</p>
+              <p>&copy; 2025 NORVOSS Demo Store.</p>
               <p>Designed with Gemini</p>
             </div>
           </footer>

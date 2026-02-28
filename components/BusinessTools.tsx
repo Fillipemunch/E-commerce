@@ -10,7 +10,7 @@ interface BusinessToolsProps {
 
 const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
   const t = UI_TEXT[lang];
-  const [activeTool, setActiveTool] = useState<'compliance' | 'pricing' | 'invoice' | 'social' | 'translator' | 'coupons' | 'fraud' | 'forecast' | 'landing' | 'access' | 'voice'>('compliance');
+  const [activeTool, setActiveTool] = useState<'compliance' | 'pricing' | 'invoice' | 'social' | 'translator' | 'coupons' | 'fraud' | 'forecast' | 'landing' | 'access' | 'voice' | 'chatbot' | 'search'>('compliance');
 
   // Compliance State
   const [complianceText, setComplianceText] = useState('');
@@ -58,6 +58,11 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
   const [isListening, setIsListening] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [voiceResult, setVoiceResult] = useState<VoiceCommandIntent | null>(null);
+
+  // Chatbot State
+  const [chatInput, setChatInput] = useState('');
+  const [chatHistory, setChatHistory] = useState<Array<{ role: 'user' | 'model', text: string }>>([]);
+  const [loadingChat, setLoadingChat] = useState(false);
 
   // Handlers
   const handleCheckCompliance = async () => {
@@ -154,6 +159,21 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
 
     recognition.onerror = () => setIsListening(false);
     recognition.onend = () => setIsListening(false);
+  };
+
+  const handleChat = async () => {
+    if (!chatInput) return;
+    const userMsg = chatInput;
+    setChatInput('');
+    setChatHistory(prev => [...prev, { role: 'user', text: userMsg }]);
+    setLoadingChat(true);
+    
+    // Import chatWithAI dynamically or use it if already imported
+    const { chatWithAI } = await import('../services/geminiService');
+    const response = await chatWithAI(userMsg, chatHistory);
+    
+    setChatHistory(prev => [...prev, { role: 'model', text: response }]);
+    setLoadingChat(false);
   };
 
 
@@ -297,7 +317,7 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
               
               <div className="flex justify-between items-start mb-12 border-b border-slate-100 pb-8">
                   <div>
-                      <h1 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">Nordic<span className="text-electricBlue">Com</span> Shop</h1>
+                      <h1 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">NORVOSS Shop</h1>
                       <p className="text-sm font-medium text-slate-500">Strøget 1, 1100 København K</p>
                       <p className="text-sm font-medium text-slate-500">CVR: 12345678</p>
                   </div>
@@ -720,6 +740,104 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
     </div>
   );
 
+  const renderChatbot = () => (
+    <div className="space-y-6 animate-slide-in-right">
+        <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-lg flex flex-col h-[600px]">
+            <h3 className="text-xl font-black mb-6 flex items-center gap-3 text-slate-900">
+                <div className="bg-indigo-50 p-2 rounded-xl text-indigo-600"><MessageCircle className="w-6 h-6" /></div>
+                {t.tool_chatbot}
+            </h3>
+            
+            <div className="flex-1 overflow-y-auto mb-6 space-y-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                {chatHistory.length === 0 && (
+                    <div className="text-center py-10 text-slate-400 font-medium italic">
+                        Start a conversation with your AI assistant.
+                    </div>
+                )}
+                {chatHistory.map((msg, i) => (
+                    <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[80%] p-4 rounded-2xl text-sm font-medium ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white border border-slate-100 text-slate-800 rounded-tl-none shadow-sm'}`}>
+                            {msg.text}
+                        </div>
+                    </div>
+                ))}
+                {loadingChat && (
+                    <div className="flex justify-start">
+                        <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-sm">
+                            <div className="flex gap-1">
+                                <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce"></div>
+                                <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                                <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <div className="flex gap-3">
+                <input 
+                    type="text" 
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleChat()}
+                    placeholder="Ask anything..."
+                    className="flex-1 p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ring-0 focus:border-indigo-500 focus:bg-white outline-none font-medium"
+                />
+                <button 
+                    onClick={handleChat}
+                    disabled={loadingChat || !chatInput}
+                    className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg disabled:opacity-50"
+                >
+                    Send
+                </button>
+            </div>
+        </div>
+    </div>
+  );
+
+  const renderSearch = () => (
+    <div className="space-y-6 animate-slide-in-right">
+        <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-lg">
+            <h3 className="text-xl font-black mb-6 flex items-center gap-3 text-slate-900">
+                <div className="bg-emerald-50 p-2 rounded-xl text-emerald-600"><Eye className="w-6 h-6" /></div>
+                {t.tool_search}
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div className="space-y-4">
+                    <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100">
+                        <h4 className="font-black text-emerald-800 mb-2">Intent-Based Search</h4>
+                        <p className="text-sm text-emerald-700 font-medium">Our AI doesn't just look for keywords. It understands what the customer is looking for, even with typos or vague descriptions.</p>
+                    </div>
+                    <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                        <h4 className="font-black text-blue-800 mb-2">Bilingual Support</h4>
+                        <p className="text-sm text-blue-700 font-medium">Search works seamlessly in both Danish and English, automatically detecting the language and intent.</p>
+                    </div>
+                </div>
+                <div className="bg-slate-900 rounded-2xl p-6 text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                    <h4 className="font-black mb-4 flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-400" /> Active on Storefront</h4>
+                    <ul className="space-y-3 text-sm font-medium text-slate-300">
+                        <li className="flex items-center gap-2"><div className="w-1 h-1 bg-emerald-400 rounded-full"></div> Synonyms Recognition</li>
+                        <li className="flex items-center gap-2"><div className="w-1 h-1 bg-emerald-400 rounded-full"></div> Visual Search Ready</li>
+                        <li className="flex items-center gap-2"><div className="w-1 h-1 bg-emerald-400 rounded-full"></div> Personalized Results</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200 text-center">
+                <p className="text-slate-500 font-bold mb-4 italic">"Smart Search is automatically integrated into your NORVOSS storefront."</p>
+                <button 
+                    onClick={() => window.open('/store', '_blank')}
+                    className="bg-white text-slate-900 px-8 py-3 rounded-xl font-bold border border-slate-200 shadow-sm hover:shadow-md transition-all"
+                >
+                    Test on Storefront
+                </button>
+            </div>
+        </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col lg:flex-row gap-8">
        {/* Tools Navigation */}
@@ -736,6 +854,8 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
                { id: 'landing', label: t.tool_landing, icon: LayoutTemplate, color: 'text-pink-500' },
                { id: 'access', label: t.tool_access, icon: Accessibility, color: 'text-teal-500' },
                { id: 'voice', label: t.tool_voice, icon: Mic, color: 'text-rose-500' },
+               { id: 'chatbot', label: t.tool_chatbot, icon: MessageCircle, color: 'text-indigo-500' },
+               { id: 'search', label: t.tool_search, icon: Eye, color: 'text-emerald-500' },
            ].map((tool) => (
                <button
                   key={tool.id}
@@ -761,6 +881,8 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
            {activeTool === 'landing' && renderLanding()}
            {activeTool === 'access' && renderAccess()}
            {activeTool === 'voice' && renderVoice()}
+           {activeTool === 'chatbot' && renderChatbot()}
+           {activeTool === 'search' && renderSearch()}
        </div>
     </div>
   );

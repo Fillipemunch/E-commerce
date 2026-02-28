@@ -693,3 +693,22 @@ export const parseVoiceCommand = async (transcript: string): Promise<VoiceComman
     return null;
   }
 };
+
+// 18. Bilingual Chatbot
+export const chatWithAI = async (message: string, history: any[]): Promise<string> => {
+  try {
+    const chat: Chat = ai.chats.create({
+      model: 'gemini-2.5-flash',
+      config: {
+        systemInstruction: "You are a helpful, bilingual (Danish/English) e-commerce assistant for NORVOSS. Help customers with product questions, shipping info, and general support. Use a friendly, Nordic tone.",
+      }
+    });
+
+    // Send history if needed, but for simplicity we just send the message
+    const result = await chat.sendMessage({ message });
+    return result.text || "I'm sorry, I couldn't process that.";
+  } catch (e) {
+    console.error("Chat Error", e);
+    return "The chatbot is currently resting. Please try again later.";
+  }
+};

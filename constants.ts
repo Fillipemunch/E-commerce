@@ -3,7 +3,7 @@ import { Language, MockSalesData, Pakkeshop, StoreProduct, ShopLookImage, Delive
 
 export const UI_TEXT = {
   da: {
-    title: 'NordicCom',
+    title: 'NORVOSS',
     subtitle: 'Din E-handels Intelligence Partner',
     nav_dashboard: 'Oversigt',
     nav_product: 'Produkt AI',
@@ -66,7 +66,7 @@ export const UI_TEXT = {
     step_4_desc: 'Publicer din butik live med integrerede betalinger og fragt.',
     // Storefront Specific
     hero_title: 'Slip din stil løs. Køb Fremtiden.',
-    hero_subtitle: 'Høj energi, fedt design. Oplev den nye bølge af nordisk stil.',
+    hero_subtitle: 'Høj energi, fedt design. Oplev den nye bølge af NORVOSS stil.',
     cta_buy: 'Udforsk Nu',
     cta_explore: 'Se Kollektionen',
     section_new: 'Nye Ankomster',
@@ -123,6 +123,8 @@ export const UI_TEXT = {
     tool_landing: 'Landing Page',
     tool_access: 'WCAG Tjek',
     tool_voice: 'Stemmekontrol',
+    tool_chatbot: 'Bilingual Chatbot',
+    tool_search: 'Smart Search',
     compliance_placeholder: 'Indsæt din returpolitik eller produkttekst her...',
     btn_check_compliance: 'Tjek Lovlighed',
     compliance_pass: 'Godkendt',
@@ -168,7 +170,7 @@ export const UI_TEXT = {
     metric_na: 'Ingen forfaldne',
   },
   en: {
-    title: 'NordicCom',
+    title: 'NORVOSS',
     subtitle: 'Your E-commerce Intelligence Partner',
     nav_dashboard: 'Dashboard',
     nav_product: 'Product AI',
@@ -231,7 +233,7 @@ export const UI_TEXT = {
     step_4_desc: 'Publish your live store with integrated payments and shipping.',
     // Storefront Specific
     hero_title: 'Unleash Your Style. Shop the Future.',
-    hero_subtitle: 'High energy, bold design. Experience the new wave of Nordic style.',
+    hero_subtitle: 'High energy, bold design. Experience the new wave of NORVOSS style.',
     cta_buy: 'Explore Now',
     cta_explore: 'View Collection',
     section_new: 'New Arrivals',
@@ -288,6 +290,8 @@ export const UI_TEXT = {
     tool_landing: 'Landing Page',
     tool_access: 'WCAG Audit',
     tool_voice: 'Voice Control',
+    tool_chatbot: 'Bilingual Chatbot',
+    tool_search: 'Smart Search',
     compliance_placeholder: 'Paste your return policy or product text here...',
     btn_check_compliance: 'Check Compliance',
     compliance_pass: 'Compliant',
@@ -355,7 +359,7 @@ export const MOCK_PRODUCTS: StoreProduct[] = [];
 
 export const MOCK_SHOP_LOOK: ShopLookImage = {
   id: 1,
-  title: 'Nordic Living Room',
+  title: 'NORVOSS Living Room',
   imageUrl: 'https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?auto=format&fit=crop&q=80&w=1200',
   items: []
 };

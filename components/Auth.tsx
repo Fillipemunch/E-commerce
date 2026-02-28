@@ -33,6 +33,11 @@ const Auth: React.FC<AuthProps> = ({ lang, onLogin, onBack }) => {
     // Simulate API call
     setTimeout(() => {
       setLoading(false);
+      // Admin credentials check
+      if (isLogin && email === 'fillipeferreiramunch@gmail.com' && password === 'Cafecafe13...') {
+        onLogin('Admin Store');
+        return;
+      }
       onLogin(storeName);
     }, 1500);
   };

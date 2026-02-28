@@ -21,7 +21,7 @@ const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('en');
   const [activeTab, setActiveTab] = useState<Tab>(isDemo ? Tab.STOREFRONT : Tab.DASHBOARD);
   const [showLogoutToast, setShowLogoutToast] = useState(false);
-  const [storeName, setStoreName] = useState('Nordic Shop');
+  const [storeName, setStoreName] = useState('NORVOSS');
   const [isStoreLaunched, setIsStoreLaunched] = useState(false);
   
   // Lifted Product State for CRUD
@@ -42,18 +42,18 @@ const App: React.FC = () => {
       try { return JSON.parse(saved); } catch (e) { console.error(e); }
     }
     return {
-      logoText: 'NORDIC',
+      logoText: 'NORVOSS',
       logoImage: null,
       heroImage: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=2000',
       heroTitle: 'Unleash Your Style.',
       heroAccentTitle: 'Shop the Future.',
-      heroSubtitle: 'High energy, bold design. Experience the new wave of Nordic style.',
+      heroSubtitle: 'High energy, bold design. Experience the new wave of NORVOSS style.',
       ctaBuyText: 'Explore Now',
       ctaExploreText: 'View Collection',
       shopLookImage: MOCK_SHOP_LOOK.imageUrl,
       sectionShopLookTitle: 'Shop the Look',
       sectionNewTitle: 'New Arrivals',
-      footerDesc: 'NordicCom is the leading AI-powered e-commerce platform for Danish businesses.',
+      footerDesc: 'NORVOSS is the leading AI-powered e-commerce platform for Danish businesses.',
       uspData: [
         { title: 'Lightning Delivery', iconName: 'Zap' },
         { title: 'Secure MobilePay', iconName: 'Shield' },
@@ -78,7 +78,7 @@ const App: React.FC = () => {
   const t = { ...UI_TEXT[lang], ...customLabels };
 
   // Derive URL from store name
-  const storeUrl = storeName.toLowerCase().replace(/[^a-z0-9]/g, '-') + '.nordiccom.com';
+  const storeUrl = storeName.toLowerCase().replace(/[^a-z0-9]/g, '-') + '.norvoss.com';
 
   const toggleLang = () => setLang(prev => prev === 'da' ? 'en' : 'da');
 
@@ -350,7 +350,7 @@ const App: React.FC = () => {
                   className="bg-white/10 border-none p-1 rounded font-black text-2xl tracking-tighter w-full focus:ring-2 focus:ring-electricBlue outline-none text-white"
                 />
               ) : (
-                <span className="font-black text-2xl tracking-tighter">Nordic<span className="text-electricBlue">Com</span></span>
+                <span className="font-black text-2xl tracking-tighter">NORVOSS</span>
               )}
            </div>
            {isGlobalEditMode ? (
@@ -508,7 +508,7 @@ const App: React.FC = () => {
         {/* Mobile Header */}
         {!isDemo && (
         <header className="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-30 shadow-lg">
-           <div className="font-black text-lg">Nordic<span className="text-electricBlue">Com</span></div>
+           <div className="font-black text-lg">NORVOSS</div>
            <button onClick={toggleLang} className="text-xs font-bold bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-full">
              {lang.toUpperCase()}
            </button>

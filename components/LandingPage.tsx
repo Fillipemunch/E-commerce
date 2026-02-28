@@ -70,7 +70,7 @@ const LandingPage: React.FC<LandingPageProps> = ({
           {/* Logo */}
           <div className="flex items-center gap-2 group cursor-pointer hover:opacity-90 transition-opacity">
              <div className="w-10 h-10 bg-electricBlue rounded-xl flex items-center justify-center font-black text-white text-xl shadow-lg shadow-blue-600/50 group-hover:rotate-6 transition-transform">N</div>
-             <span className="text-2xl font-black tracking-tighter">Nordic<span className="text-electricBlue">Com</span></span>
+             <span className="text-2xl font-black tracking-tighter">NORVOSS</span>
           </div>
 
           <div className="flex items-center gap-6">
@@ -244,7 +244,7 @@ const LandingPage: React.FC<LandingPageProps> = ({
       <section className="py-24 bg-slate-950 relative border-t border-slate-900">
          <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-20">
-                <span className="text-electricBlue font-bold uppercase tracking-widest text-sm mb-4 block">Why Choose NordicCom?</span>
+                <span className="text-electricBlue font-bold uppercase tracking-widest text-sm mb-4 block">Why Choose NORVOSS?</span>
                 <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">
                 {t.landing_feat_header}
                 </h2>
@@ -302,7 +302,7 @@ const LandingPage: React.FC<LandingPageProps> = ({
               <Globe className="w-4 h-4" />
               <span>Copenhagen, Denmark</span>
           </div>
-          <p>&copy; 2025 NordicCom. All rights reserved.</p>
+          <p>&copy; 2025 NORVOSS. All rights reserved.</p>
       </footer>
     </div>
   );
