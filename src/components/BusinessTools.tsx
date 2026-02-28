@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldAlert, FileText, TrendingUp, AlertTriangle, CheckCircle, Download, FileCheck, MessageCircle, Languages, Tag, RefreshCw, Copy, Check, Eye, Lock, LayoutTemplate, Accessibility, Mic, CreditCard, DollarSign, Globe, ArrowLeft, ExternalLink, ShieldCheck } from 'lucide-react';
+import { ShieldAlert, FileText, TrendingUp, AlertTriangle, CheckCircle, Download, FileCheck, MessageCircle, Languages, Tag, RefreshCw, Copy, Check, Eye, Lock, LayoutTemplate, Accessibility, Mic, CreditCard, DollarSign, ArrowLeft, ExternalLink, ShieldCheck } from 'lucide-react';
 import { Language, ComplianceResult, CompetitorInsight, SocialResponse, SmartCouponResult, FraudAnalysis, ForecastRecommendation, AccessibilityAudit, VoiceCommandIntent } from '@/types';
 import { UI_TEXT, MOCK_INVENTORY, MOCK_TRANSACTION } from '@/constants';
 import { checkCompliance, analyzeCompetitorPricing, generateSocialResponses, translateBusinessText, generateSmartCoupon, analyzeFraudRisk, predictInventory, generateLandingPage, auditAccessibility, parseVoiceCommand } from '@/services/geminiService';
@@ -10,7 +10,7 @@ interface BusinessToolsProps {
 
 const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
   const t = UI_TEXT[lang];
-  const [activeTool, setActiveTool] = useState<'compliance' | 'pricing' | 'invoice' | 'social' | 'translator' | 'coupons' | 'fraud' | 'forecast' | 'landing' | 'access' | 'voice' | 'chatbot' | 'search' | 'netlify'>('compliance');
+  const [activeTool, setActiveTool] = useState<'compliance' | 'pricing' | 'invoice' | 'social' | 'translator' | 'coupons' | 'fraud' | 'forecast' | 'landing' | 'access' | 'voice' | 'chatbot' | 'search'>('compliance');
 
   // Compliance State
   const [complianceText, setComplianceText] = useState('');
@@ -63,14 +63,6 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState<Array<{ role: 'user' | 'model', text: string }>>([]);
   const [loadingChat, setLoadingChat] = useState(false);
-
-  // Netlify State
-  const [netlifySites, setNetlifySites] = useState<any[]>([]);
-  const [selectedSite, setSelectedSite] = useState<any | null>(null);
-  const [siteDeploys, setSiteDeploys] = useState<any[]>([]);
-  const [loadingNetlify, setLoadingNetlify] = useState(false);
-  const [loadingDeploys, setLoadingDeploys] = useState(false);
-  const [netlifyError, setNetlifyError] = useState<string | null>(null);
 
   // Handlers
   const handleCheckCompliance = async () => {
@@ -182,41 +174,6 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
     
     setChatHistory(prev => [...prev, { role: 'model', text: response }]);
     setLoadingChat(false);
-  };
-
-  const handleFetchNetlifySites = async () => {
-    setLoadingNetlify(true);
-    setNetlifyError(null);
-    setSelectedSite(null);
-    try {
-      const response = await fetch('/api/netlify/sites');
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to fetch sites');
-      }
-      const data = await response.json();
-      setNetlifySites(data);
-    } catch (err: any) {
-      setNetlifyError(err.message);
-    } finally {
-      setLoadingNetlify(false);
-    }
-  };
-
-  const handleFetchSiteDetails = async (site: any) => {
-    setSelectedSite(site);
-    setLoadingDeploys(true);
-    try {
-      const response = await fetch(`/api/netlify/site/${site.id}/deploys`);
-      if (response.ok) {
-        const data = await response.json();
-        setSiteDeploys(data);
-      }
-    } catch (err) {
-      console.error("Error fetching deploys", err);
-    } finally {
-      setLoadingDeploys(false);
-    }
   };
 
 
@@ -881,160 +838,6 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
     </div>
   );
 
-  const renderNetlify = () => (
-    <div className="space-y-6 animate-slide-in-right">
-      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-lg">
-        <h3 className="text-xl font-black mb-6 flex items-center gap-3 text-slate-900">
-          <div className="bg-blue-50 p-2 rounded-xl text-blue-600"><Globe className="w-6 h-6" /></div>
-          {t.tool_netlify}
-        </h3>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-slate-500 font-medium">
-                Manage your store deployments on Netlify.
-              </p>
-              <button 
-                onClick={handleFetchNetlifySites}
-                disabled={loadingNetlify}
-                className="bg-slate-900 text-white px-6 py-2 rounded-xl font-bold hover:bg-black transition shadow-lg disabled:opacity-50 flex items-center gap-2 text-xs"
-              >
-                {loadingNetlify ? t.loading : t.netlify_btn_fetch}
-              </button>
-            </div>
-
-            {netlifyError && (
-              <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm font-bold flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5" />
-                {netlifyError}
-              </div>
-            )}
-
-            {netlifySites.length > 0 && !selectedSite && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                  <thead className="text-slate-400 uppercase text-[10px] font-black tracking-wider border-b border-slate-100">
-                    <tr>
-                      <th className="px-4 py-3">{t.netlify_site_name}</th>
-                      <th className="px-4 py-3">{t.netlify_status}</th>
-                      <th className="px-4 py-3">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {netlifySites.map((site: any) => (
-                      <tr key={site.id} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="px-4 py-4 font-bold text-slate-800">{site.name}</td>
-                        <td className="px-4 py-4">
-                          <span className="bg-green-100 text-green-700 text-[10px] font-black px-2 py-0.5 rounded uppercase">
-                            {site.state}
-                          </span>
-                        </td>
-                        <td className="px-4 py-4">
-                          <button 
-                            onClick={() => handleFetchSiteDetails(site)}
-                            className="text-blue-600 font-bold text-xs hover:underline"
-                          >
-                            View Details
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {selectedSite && (
-              <div className="space-y-6 animate-fade-in-up">
-                <button 
-                  onClick={() => setSelectedSite(null)}
-                  className="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1"
-                >
-                  <ArrowLeft className="w-3 h-3" /> Back to list
-                </button>
-                
-                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h4 className="text-2xl font-black text-slate-900">{selectedSite.name}</h4>
-                      <a href={selectedSite.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 font-medium text-sm flex items-center gap-1">
-                        {selectedSite.url} <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </div>
-                    <span className="bg-green-100 text-green-700 text-xs font-black px-3 py-1 rounded-full uppercase">
-                      {selectedSite.state}
-                    </span>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 mt-6">
-                    <div className="bg-white p-4 rounded-xl border border-slate-100">
-                      <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Last Update</p>
-                      <p className="text-sm font-bold text-slate-800">{new Date(selectedSite.updated_at).toLocaleString()}</p>
-                    </div>
-                    <div className="bg-white p-4 rounded-xl border border-slate-100">
-                      <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Build Command</p>
-                      <p className="text-sm font-bold text-slate-800">{selectedSite.build_settings?.batch_id || 'npm run build'}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h5 className="text-sm font-black text-slate-900 mb-4 uppercase tracking-wider">Recent Deploys</h5>
-                  {loadingDeploys ? (
-                    <div className="flex justify-center p-10"><RefreshCw className="w-6 h-6 animate-spin text-slate-300" /></div>
-                  ) : (
-                    <div className="space-y-3">
-                      {siteDeploys.slice(0, 5).map((deploy: any) => (
-                        <div key={deploy.id} className="bg-white p-4 rounded-xl border border-slate-100 flex items-center justify-between shadow-sm">
-                          <div>
-                            <p className="text-sm font-bold text-slate-800">{deploy.title || 'Manual Deploy'}</p>
-                            <p className="text-[10px] text-slate-400 font-medium">{new Date(deploy.created_at).toLocaleString()}</p>
-                          </div>
-                          <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${deploy.state === 'ready' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                            {deploy.state}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-6">
-            <div className="bg-slate-900 text-white p-6 rounded-3xl shadow-xl">
-              <h4 className="font-black mb-4 flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-emerald-400" /> Netlify Setup Guide</h4>
-              <p className="text-xs text-slate-300 mb-4 leading-relaxed">
-                To make your NORVOSS store fully functional on Netlify, follow these steps:
-              </p>
-              <ol className="space-y-4 text-xs">
-                <li className="flex gap-3">
-                  <div className="bg-emerald-500/20 text-emerald-400 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 font-black">1</div>
-                  <p><span className="text-white font-bold">Environment Variables:</span> Add <code className="bg-white/10 px-1 rounded">GEMINI_API_KEY</code> to your Netlify Site Settings.</p>
-                </li>
-                <li className="flex gap-3">
-                  <div className="bg-emerald-500/20 text-emerald-400 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 font-black">2</div>
-                  <p><span className="text-white font-bold">Build Settings:</span> Set Build Command to <code className="bg-white/10 px-1 rounded">npm run build</code> and Publish Directory to <code className="bg-white/10 px-1 rounded">dist</code>.</p>
-                </li>
-                <li className="flex gap-3">
-                  <div className="bg-emerald-500/20 text-emerald-400 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 font-black">3</div>
-                  <p><span className="text-white font-bold">SPA Redirects:</span> Ensure <code className="bg-white/10 px-1 rounded">netlify.toml</code> is in your root (I've created it for you).</p>
-                </li>
-              </ol>
-              <div className="mt-6 pt-6 border-t border-white/10">
-                <p className="text-[10px] text-slate-400 font-medium italic">
-                  Note: Standard Netlify hosting is static. Backend features like Fraud Shield require Netlify Functions.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <div className="flex flex-col lg:flex-row gap-8">
        {/* Tools Navigation */}
@@ -1053,7 +856,6 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
                { id: 'voice', label: t.tool_voice, icon: Mic, color: 'text-rose-500' },
                { id: 'chatbot', label: t.tool_chatbot, icon: MessageCircle, color: 'text-indigo-500' },
                { id: 'search', label: t.tool_search, icon: Eye, color: 'text-emerald-500' },
-               { id: 'netlify', label: t.tool_netlify, icon: Globe, color: 'text-blue-600' },
            ].map((tool) => (
                <button
                   key={tool.id}
@@ -1081,7 +883,6 @@ const BusinessTools: React.FC<BusinessToolsProps> = ({ lang }) => {
            {activeTool === 'voice' && renderVoice()}
            {activeTool === 'chatbot' && renderChatbot()}
            {activeTool === 'search' && renderSearch()}
-           {activeTool === 'netlify' && renderNetlify()}
        </div>
     </div>
   );

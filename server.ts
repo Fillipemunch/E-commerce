@@ -17,56 +17,6 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
-  // Netlify API proxy - List Sites
-  app.get("/api/netlify/sites", async (req, res) => {
-    const token = process.env.NETLIFY_AUTH_TOKEN;
-    if (!token) return res.status(401).json({ error: "NETLIFY_AUTH_TOKEN is not set" });
-
-    try {
-      const response = await fetch("https://api.netlify.com/api/v1/sites", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      res.json(data);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch sites" });
-    }
-  });
-
-  // Netlify API proxy - Get Site Info
-  app.get("/api/netlify/site/:siteId", async (req, res) => {
-    const token = process.env.NETLIFY_AUTH_TOKEN;
-    const { siteId } = req.params;
-    if (!token) return res.status(401).json({ error: "NETLIFY_AUTH_TOKEN is not set" });
-
-    try {
-      const response = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      res.json(data);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch site info" });
-    }
-  });
-
-  // Netlify API proxy - Get Deploys
-  app.get("/api/netlify/site/:siteId/deploys", async (req, res) => {
-    const token = process.env.NETLIFY_AUTH_TOKEN;
-    const { siteId } = req.params;
-    if (!token) return res.status(401).json({ error: "NETLIFY_AUTH_TOKEN is not set" });
-
-    try {
-      const response = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/deploys`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      res.json(data);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch deploys" });
-    }
-  });
-
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
